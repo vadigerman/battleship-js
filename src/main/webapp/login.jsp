@@ -106,7 +106,7 @@
         var pwd1 = password1Txt.value;
         var pwd2 = password2Txt.value;
         if (pwd1 !== pwd2) {
-            showError("Passwords doesn't match!")
+            showError("Passwords doesn't match!");
             return;
         }
         var dto = {
