@@ -128,13 +128,26 @@ public class GameApi {
         Optional<Game> game = gameStore.getOpenGameFor(currentUser);
         game.ifPresent(g -> {
             User oppositeUser = g.getOppositePlayer(currentUser);
-            List<Cell> cells = gameStore.getShips(g, oppositeUser);
 
-            for (Cell item : cells) {
-                if (address.equals(item.getAddress())) {
-                    gameStore.setCellState(g, oppositeUser, item.getAddress(), false, CellState.HIT);
+            Optional<Cell> targetCell= gameStore.getCell(g, oppositeUser, address, false);
+            if (targetCell.isPresent()) {
+                Cell c = targetCell.get();
+                if (c.getState().equals(CellState.SHIP)) {
+                    gameStore.setCellState(g, oppositeUser, c.getAddress(), false, CellState.HIT);
                     gameStore.setCellState(g, currentUser, address, true, CellState.HIT);
+                } else if (c.getState().equals(CellState.EMPTY)) {
+                    gameStore.setCellState(g, oppositeUser, c.getAddress(), false, CellState.MISS);
+                    gameStore.setCellState(g, currentUser, address, true, CellState.MISS);
+                    boolean p1a = g.isPlayer1Active();
+                    g.setPlayer1Active(!p1a);
+                    g.setPlayer2Active(p1a);
                 }
+            } else {
+                gameStore.setCellState(g, oppositeUser, address, false, CellState.MISS);
+                gameStore.setCellState(g, currentUser, address, true, CellState.MISS);
+                boolean p1a = g.isPlayer1Active();
+                g.setPlayer1Active(!p1a);
+                g.setPlayer2Active(p1a);
             }
         });
     }

@@ -35,7 +35,7 @@
             margin-top: 10px;
         }
 
-        .hide-input {
+        .hide-inpt .radio-btn {
             visibility: hidden;
         }
 
@@ -141,7 +141,6 @@
         var checked = document.querySelector('input[name=target]:checked');
         var checkedAddr = checked.id;
         console.log("firing addr " + checkedAddr);
-        document.getElementById(checkedAddr).classList.add("hide-input");
         fetch("/api/game/fire/" + checkedAddr, {
             "method": "POST",
             headers: {
@@ -169,6 +168,14 @@
                 var tblCell = document.getElementById(id);
                 tblCell.className = c.state;
             });
+            var checkedFields = document.getElementsByClassName("HIT");
+            for (var i = 0; i < checkedFields.length; i++) {
+                checkedFields[i].classList.add("hide-inpt");
+            }
+            var checkedFields2 = document.getElementsByClassName("MISS");
+            for (var i = 0; i < checkedFields2.length; i++) {
+                checkedFields2[i].classList.add("hide-inpt");
+            }
         });
     }
 </script>
