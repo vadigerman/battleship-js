@@ -34,6 +34,20 @@
         #button-fire {
             margin-top: 10px;
         }
+
+        .hide-input {
+            visibility: hidden;
+        }
+
+        td.SHIP {
+            background-color: green;
+        }
+        td.MISS {
+            background-color: blue;
+        }
+        td.HIT {
+            background-color: red;
+        }
     </style>
 </head>
 <body onload="checkStatus()">
@@ -57,7 +71,7 @@
                     <tr>
                         <td class="w3-border"><c:out value="${row}"/></td>
                         <c:forTokens items="A,B,C,D,E,F,G,H,I,J" delims="," var="col">
-                            <td class="w3-border"><input class="radio-btn" type="radio" name="target" id="${col}${row}"/></td>
+                            <td id="t${col}${row}" class="w3-border"><input class="radio-btn" type="radio" name="target" id="${col}${row}"/></td>
                         </c:forTokens>
                     </tr>
                 </c:forTokens>
@@ -77,7 +91,7 @@
                 <tr>
                     <td class="w3-border"><c:out value="${row}"/></td>
                     <c:forTokens items="A,B,C,D,E,F,G,H,I,J" delims="," var="col">
-                        <td class="w3-border" id="${col}${row}"></td>
+                        <td id="m${col}${row}" class="w3-border" id="${col}${row}"></td>
                     </c:forTokens>
                 </tr>
             </c:forTokens>
@@ -116,12 +130,19 @@
                 window.setTimeout(function () {
                     checkStatus();
                 }, 1000);
+            } else {
+                return;
             }
+            drawShips();
         });
     }
     function fire() {
-        console.log("checking status");
-        fetch("<c:url value='/api/game/fire'/>", {
+        console.log("firing");
+        var checked = document.querySelector('input[name=target]:checked');
+        var checkedAddr = checked.id;
+        console.log("firing addr " + checkedAddr);
+        document.getElementById(checkedAddr).classList.add("hide-input");
+        fetch("/api/game/fire/" + checkedAddr, {
             "method": "POST",
             headers: {
                 'Accept': 'application/json',
@@ -130,6 +151,24 @@
         }).then(function (response) {
             console.log("DONE");
             checkStatus();
+        });
+    }
+
+    function drawShips() {
+        fetch("<c:url value='/api/game/cells'/>", {
+            "method": "GET",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        }).then(function (response) {
+            return response.json();
+        }).then(function (cells) {
+            cells.forEach(function (c) {
+                var id = (c.targetArea ? "t" : "m") + c.address;
+                var tblCell = document.getElementById(id);
+                tblCell.className = c.state;
+            });
         });
     }
 </script>

@@ -31,11 +31,14 @@
 </div>
 <script>
     var data = {};
+    var shipCells = 20;
 
     function cellClicked(id) {
         var checkbox = document.getElementById(id);
         console.log(id + " " + checkbox.checked);
         data[id] = checkbox.checked ? "SHIP" : "EMPTY";
+        checkbox.checked ? shipCells-- : shipCells++;
+        console.log("incomplete cells: " + shipCells);
     }
 
     function ready() {
