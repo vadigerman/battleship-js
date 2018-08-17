@@ -101,6 +101,25 @@ public class GameApi {
 
     @GET
     @RolesAllowed({"ADMIN", "USER"})
+    @Path("/result")
+    public GameDto getAllGameStatus() {
+        User currentUser = userStore.getCurrentUser();
+        Optional<Game> game = gameStore.getAllGames(currentUser);
+        return game.map(g -> {
+            GameDto dto = new GameDto();
+            dto.setPlayerActive(g.isPlayerActive(currentUser));
+            dto.setStatus(g.getStatus());
+            if (g.isPlayer1Active()) {
+                dto.setNumberMoves(g.getNumberMovesPlayer1());
+            } else {
+                dto.setNumberMoves(g.getNumberMovesPlayer2());
+            }
+            return dto;
+        }).orElseThrow(IllegalStateException::new);
+    }
+
+    @GET
+    @RolesAllowed({"ADMIN", "USER"})
     @Path("/cells")
     public List<CellStateDto> getShips() {
         User currentUser = userStore.getCurrentUser();
@@ -121,15 +140,33 @@ public class GameApi {
         return dto;
     }
 
+//    private int countNumberMoves (Game game, User player) {
+//        String str;
+//        int countMoves = 0;
+//        for (int i = 1; i <= 10; i++) {
+//            for (char j = 'A'; j <= 'J'; j++) {
+//                str = j+Integer.toString(i);
+//                Optional<Cell> targetCell = gameStore.getCell(game, player, str, false);
+//                if (targetCell.isPresent()) {
+//                    Cell c = targetCell.get();
+//                    if (c.getState().equals(CellState.HIT) || c.getState().equals(CellState.MISS)) {
+//                        countMoves++;
+//                    }
+//                }
+//            }
+//        }
+//        return countMoves;
+//    }
+
     @POST
     @RolesAllowed({"ADMIN","USER"})
     @Path("/fire/{address}")
     public void doFire(@PathParam("address") String address) {
         User currentUser = userStore.getCurrentUser();
         Optional<Game> game = gameStore.getOpenGameFor(currentUser);
+
         game.ifPresent(g -> {
             User oppositeUser = g.getOppositePlayer(currentUser);
-
             Optional<Cell> targetCell= gameStore.getCell(g, oppositeUser, address, false);
             if (targetCell.isPresent()) {
                 Cell c = targetCell.get();
@@ -167,10 +204,23 @@ public class GameApi {
                 g.setPlayer1Active(!p1a);
                 g.setPlayer2Active(p1a);
             }
-
+            if (g.isPlayer1Active()) {
+                g.setNumberMovesPlayer1(g.getNumberMovesPlayer1() + 1);
+            } else {
+                g.setNumberMovesPlayer2(g.getNumberMovesPlayer2() + 1);
+            }
         });
     }
 
+    private void checkFinishState(Game game, User player) {
+        boolean hasShips = gameStore.getShips(game, player)
+                .stream()
+                .filter(c -> !c.isTargetArea())
+                .anyMatch(c -> c.getState() == CellState.SHIP);
+        if (!hasShips) {
+            game.setStatus(GameStatus.FINISHED);
+        }
+    }
 //    private boolean checkCellState (Game g, User user, String address) {
 //        Optional<Cell> targetCell= gameStore.getCell(g, user, address, false);
 //        if (targetCell.isPresent()) {
@@ -184,13 +234,4 @@ public class GameApi {
 //            return true;
 //        }
 //    }
-    private void checkFinishState(Game game, User player) {
-        boolean hasShips = gameStore.getShips(game, player)
-                .stream()
-                .filter(c -> !c.isTargetArea())
-                .anyMatch(c -> c.getState() == CellState.SHIP);
-        if (!hasShips) {
-            game.setStatus(GameStatus.FINISHED);
-        }
-    }
 }

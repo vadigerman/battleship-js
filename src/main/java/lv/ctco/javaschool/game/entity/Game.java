@@ -15,10 +15,12 @@ public class Game {
     @ManyToOne
     private User player1;
     private boolean player1Active;
+    private int NumberMovesPlayer1;
 
     @ManyToOne
     private User player2;
     private boolean player2Active;
+    private int NumberMovesPlayer2;
 
     @Enumerated(EnumType.STRING)
     private GameStatus status;

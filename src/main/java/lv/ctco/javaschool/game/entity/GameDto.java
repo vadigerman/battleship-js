@@ -6,4 +6,5 @@ import lombok.Data;
 public class GameDto {
     private GameStatus status;
     private boolean playerActive;
+    private int numberMoves;
 }

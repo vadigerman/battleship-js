@@ -18,13 +18,13 @@
     function startGame() {
         fetch("<c:url value='/api/game'/>", {"method": "POST"})
             .then(function (response) {
-                location.href = "/app/start.jsp";
+                location.href = "/app/placement.jsp";
             });
     }
 
     function resultStatus() {
         console.log("checking status");
-        fetch("<c:url value='/api/game/status'/>", {
+        fetch("<c:url value='/api/game/result'/>", {
             "method": "GET",
             headers: {
                 'Accept': 'application/json',
@@ -34,10 +34,13 @@
             return response.json();
         }).then(function (game) {
             console.log(JSON.stringify(game));
+            console.log("test");
             if (game.status === "FINISHED" && game.playerActive) {
                 document.getElementById("win-div").classList.remove("w3-hide");
+                console.log("test-1");
             } else if ((game.status === "FINISHED" && !game.playerActive)) {
                 document.getElementById("lose-div").classList.remove("w3-hide");
+                console.log("test-2");
             }
         });
     }
