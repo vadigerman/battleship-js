@@ -54,6 +54,19 @@ public class GameStore {
                 .findFirst();
     }
 
+    public Optional<Game> getLatestGame(User user) {
+        return em.createQuery(
+                "select g " +
+                        "from Game g " +
+                        "where g.player1 = :user " +
+                        "   or g.player2 = :user " +
+                        "order by g.id desc", Game.class)
+                .setParameter("user", user)
+                .setMaxResults(1)
+                .getResultStream()
+                .findFirst();
+    }
+
     public Optional<Cell> getCell(Game game, User player, String address, boolean targetArea) {
         return em.createQuery(
                 "select c from Cell c where c.game = :game and c.user = :user and c.targetArea = :target and c.address = :address", Cell.class)

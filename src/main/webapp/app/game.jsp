@@ -43,7 +43,7 @@
             background-color: green;
         }
         td.MISS {
-            background-color: blue;
+            background-color: cornflowerblue;
         }
         td.HIT {
             background-color: red;
@@ -115,21 +115,19 @@
                 document.getElementById("wait-another").classList.add("w3-hide");
                 document.getElementById("select-fire").classList.remove("w3-hide");
                 document.getElementById("button-fire").classList.remove("w3-hide");
-                var radioBtns = document.getElementsByClassName("radio-btn");
-                for (var i = 0; i < radioBtns.length; i++) {
-                    radioBtns[i].classList.remove("w3-hide");
-                }
+                visibleInput("radio-btn", "w3-hide");
             } else if (game.status === "STARTED" && !game.playerActive) {
                 document.getElementById("wait-another").classList.remove("w3-hide");
                 document.getElementById("select-fire").classList.add("w3-hide");
                 document.getElementById("button-fire").classList.add("w3-hide");
-                var radioBtns = document.getElementsByClassName("radio-btn");
-                for (var i = 0; i < radioBtns.length; i++) {
-                    radioBtns[i].classList.add("w3-hide");
-                }
+                hideInput("radio-btn", "w3-hide");
                 window.setTimeout(function () {
                     checkStatus();
                 }, 1000);
+            } else if (game.status === "FINISHED") {
+                location.href = "<c:url value='/app/result.jsp'/>";
+                console.log(JSON.stringify(game));
+                return;
             } else {
                 return;
             }
@@ -168,15 +166,23 @@
                 var tblCell = document.getElementById(id);
                 tblCell.className = c.state;
             });
-            var checkedFields = document.getElementsByClassName("HIT");
-            for (var i = 0; i < checkedFields.length; i++) {
-                checkedFields[i].classList.add("hide-inpt");
-            }
-            var checkedFields2 = document.getElementsByClassName("MISS");
-            for (var i = 0; i < checkedFields2.length; i++) {
-                checkedFields2[i].classList.add("hide-inpt");
-            }
+            hideInput("HIT", "hide-inpt");
+            hideInput("MISS", "hide-inpt");
         });
+    }
+
+    function hideInput(findClass, addClass) {
+        var inputs = document.getElementsByClassName(findClass);
+        for (var i = 0; i < inputs.length; i++) {
+            inputs[i].classList.add(addClass);
+        }
+    }
+
+    function visibleInput(findClass, removeClass) {
+        var inputs = document.getElementsByClassName(findClass);
+        for (var i = 0; i < inputs.length; i++) {
+            inputs[i].classList.remove(removeClass);
+        }
     }
 </script>
 </body>

@@ -90,7 +90,7 @@ public class GameApi {
     @Path("/status")
     public GameDto getGameStatus() {
         User currentUser = userStore.getCurrentUser();
-        Optional<Game> game = gameStore.getOpenGameFor(currentUser);
+        Optional<Game> game = gameStore.getLatestGame(currentUser);
         return game.map(g -> {
             GameDto dto = new GameDto();
             dto.setStatus(g.getStatus());
@@ -98,6 +98,7 @@ public class GameApi {
             return dto;
         }).orElseThrow(IllegalStateException::new);
     }
+
     @GET
     @RolesAllowed({"ADMIN", "USER"})
     @Path("/cells")
@@ -135,6 +136,23 @@ public class GameApi {
                 if (c.getState().equals(CellState.SHIP)) {
                     gameStore.setCellState(g, oppositeUser, c.getAddress(), false, CellState.HIT);
                     gameStore.setCellState(g, currentUser, address, true, CellState.HIT);
+                    checkFinishState(g, oppositeUser);
+//                    int col = (int) address.charAt(0);
+//                    int row = Character.getNumericValue(address.charAt(1));
+//                    int col1 = col - 1;
+//                    int col2 = col + 1;
+//                    int row1 = row - 1;
+//                    int row2 = row + 1;
+//                    String cell1 = Character.toString((char)col1) + Integer.toString(row1);
+//                    String cell2 = Character.toString((char)col1) + Integer.toString(row2);
+//                    String cell3 = Character.toString((char)col2) + Integer.toString(row1);
+//                    String cell4 = Character.toString((char)col2) + Integer.toString(row2);
+//                    if (checkCellState(g, oppositeUser, cell1)
+//                            && checkCellState(g, oppositeUser, cell2)
+//                            && checkCellState(g, oppositeUser, cell3)
+//                            && checkCellState(g, oppositeUser, cell4)) {
+//
+//                    }
                 } else if (c.getState().equals(CellState.EMPTY)) {
                     gameStore.setCellState(g, oppositeUser, c.getAddress(), false, CellState.MISS);
                     gameStore.setCellState(g, currentUser, address, true, CellState.MISS);
@@ -149,6 +167,30 @@ public class GameApi {
                 g.setPlayer1Active(!p1a);
                 g.setPlayer2Active(p1a);
             }
+
         });
+    }
+
+//    private boolean checkCellState (Game g, User user, String address) {
+//        Optional<Cell> targetCell= gameStore.getCell(g, user, address, false);
+//        if (targetCell.isPresent()) {
+//            Cell c = targetCell.get();
+//            if (!c.getState().equals(CellState.SHIP)) {
+//                return true;
+//            } else {
+//                return false;
+//            }
+//        } else {
+//            return true;
+//        }
+//    }
+    private void checkFinishState(Game game, User player) {
+        boolean hasShips = gameStore.getShips(game, player)
+                .stream()
+                .filter(c -> !c.isTargetArea())
+                .anyMatch(c -> c.getState() == CellState.SHIP);
+        if (!hasShips) {
+            game.setStatus(GameStatus.FINISHED);
+        }
     }
 }
