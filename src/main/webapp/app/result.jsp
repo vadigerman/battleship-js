@@ -11,9 +11,10 @@
         <h1>Game win!</h1>
     </div>
     <div id="lose-div" class="w3-hide">
-        <h1>Game over!</h1>
+        <h1>Game lose!</h1>
     </div>
     <button type="button" onclick="startGame()">Start</button>
+    <button type="button" onclick="returnToStart()">Return</button>
 <script>
     function startGame() {
         fetch("<c:url value='/api/game'/>", {"method": "POST"})
@@ -25,7 +26,7 @@
     function resultStatus() {
         console.log("checking status");
         fetch("<c:url value='/api/game/result'/>", {
-            "method": "GET",
+            "method": "POST",
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
@@ -34,15 +35,16 @@
             return response.json();
         }).then(function (game) {
             console.log(JSON.stringify(game));
-            console.log("test");
             if (game.status === "FINISHED" && game.playerActive) {
                 document.getElementById("win-div").classList.remove("w3-hide");
-                console.log("test-1");
             } else if ((game.status === "FINISHED" && !game.playerActive)) {
                 document.getElementById("lose-div").classList.remove("w3-hide");
-                console.log("test-2");
             }
         });
+    }
+
+    function returnToStart() {
+        location.href = "<c:url value="start.jsp"/>"
     }
 </script>
 </body>

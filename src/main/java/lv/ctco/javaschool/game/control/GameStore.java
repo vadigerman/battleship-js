@@ -41,19 +41,6 @@ public class GameStore {
                 .findFirst();
     }
 
-    public Optional<Game> getOpenGameFor(User user) {
-        return em.createQuery(
-                "select g " +
-                        "from Game g " +
-                        "where g.status <> :status " +
-                        "  and (g.player1 = :user " +
-                        "   or g.player2 = :user)", Game.class)
-                .setParameter("status", GameStatus.FINISHED)
-                .setParameter("user", user)
-                .getResultStream()
-                .findFirst();
-    }
-
     public Optional<Game> getLatestGame(User user) {
         return em.createQuery(
                 "select g " +
@@ -88,27 +75,6 @@ public class GameStore {
                 .getResultStream()
                 .findFirst();
     }
-
-//    public int getCountCell(Game game, User player, String address, boolean targetArea, CellState state) {
-//        List<Cell> cells = em.createQuery(
-//                "select c from Cell c " +
-//                        "where c.game = :game " +
-//                        "  and c.user = :user " +
-//                        "  and c.targetArea = :target " +
-//                        "  and c.address = :address", Cell.class)
-//                .setParameter("game", game)
-//                .setParameter("user", player)
-//                .setParameter("target", targetArea)
-//                .setParameter("address", address)
-//                .getResultList();
-//        cells.forEach(c -> {
-//            int countMoves = 0;
-//            if (c.getState().equals(state)) {
-//                countMoves++;
-//            }
-//            return countMoves;
-//        });
-//    }
 
     public void setCellState(Game game, User player, String address, boolean targetArea, CellState state) {
         Optional<Cell> cell = em.createQuery(

@@ -15,12 +15,12 @@ public class Game {
     @ManyToOne
     private User player1;
     private boolean player1Active;
-    private int NumberMovesPlayer1;
+    private int numberMovesPlayer1;
 
     @ManyToOne
     private User player2;
     private boolean player2Active;
-    private int NumberMovesPlayer2;
+    private int numberMovesPlayer2;
 
     @Enumerated(EnumType.STRING)
     private GameStatus status;
@@ -30,6 +30,16 @@ public class Game {
             return player1Active;
         } else if (player.equals(player2)) {
             return player2Active;
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    public int getUsersScore(User user) {
+        if (user.equals(this.getPlayer1())) {
+            return this.getNumberMovesPlayer1();
+        } else if (user.equals(this.getPlayer2())) {
+            return this.getNumberMovesPlayer2();
         } else {
             throw new IllegalArgumentException();
         }
@@ -52,6 +62,17 @@ public class Game {
             return player1;
         } else {
             throw new IllegalArgumentException();
+        }
+    }
+
+    public void numberMoves(User currentUser) {
+        int count;
+        if (currentUser == player1) {
+            count = this.getNumberMovesPlayer1();
+            this.setNumberMovesPlayer1(count + 1);
+        } else if (currentUser == player2) {
+            count = this.getNumberMovesPlayer2();
+            this.setNumberMovesPlayer2(count + 1);
         }
     }
 }
